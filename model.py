@@ -6,7 +6,7 @@ from fs.ftype import FileType
 
 
 class File:
-    def __init__(self, filename):
+    def __init__(self, filename: str):
         """
         File object constructor
 

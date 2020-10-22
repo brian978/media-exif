@@ -4,12 +4,13 @@ import shutil
 from fs.common import Directory
 from media.metadata import MetaFactory
 
-path = ''
-not_dated = ''
+path = input('Target path: ')
+not_dated = path + '/_NotDated'
 
 dir_obj = Directory(path)
 
 for file in dir_obj.fetch(['jpg', 'jpeg', 'mov', 'png']):
+    print(f'Processing file {file.name}')
     try:
         file_meta = MetaFactory.factory(file)
 
@@ -20,12 +21,16 @@ for file in dir_obj.fetch(['jpg', 'jpeg', 'mov', 'png']):
         else:
             print(f'No date taken for file: {file.basename}')
 
+            if not os.path.isdir(not_dated):
+                os.mkdir(not_dated)
+
+            # making sure the file does not exist
             new_filename = f'{not_dated}/{file.basename}'
             while os.path.isfile(new_filename):
                 new_filename = f'{not_dated}/{file.create_unique_basename()}'
 
             print(f'Copy from {file.name} to {new_filename}')
-            shutil.copyfile(file.name, new_filename)
+            shutil.move(file.name, new_filename)
     except ValueError as msg:
         print(f'{file.name}: {msg}')
         continue

@@ -5,7 +5,7 @@ from model import File
 
 
 class Directory:
-    excluded = ['NotDated']
+    excluded = ['_NotDated']
 
     def __init__(self, directory: str):
         self.__dir = directory
@@ -23,6 +23,10 @@ class Directory:
 
             # Return the files
             for fp in results:
+                if isinstance(fp, File):
+                    yield fp
+                    continue
+
                 yield File(fp)
 
     def fetch(self, file_extension: Optional[list] = None):
