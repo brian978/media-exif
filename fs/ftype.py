@@ -6,6 +6,7 @@ class FileType(enum.Enum):
     TYPE_HEIC = 'heic'
     TYPE_JPEG = 'jpg'
     TYPE_PNG = 'png'
+    TYPE_MP4 = 'png'
 
     @staticmethod
     def detect_type(filename):
@@ -19,5 +20,7 @@ class FileType(enum.Enum):
             return FileType.TYPE_JPEG
         elif fn.find('.png') > 0:
             return FileType.TYPE_PNG
+        elif fn.find('.mp4') > 0:
+            return FileType.TYPE_MP4
 
         raise ValueError('Filename has an unsupported format!')

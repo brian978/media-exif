@@ -1,7 +1,7 @@
 import abc
+import struct
 import subprocess
 from datetime import datetime
-import struct
 from datetime import timedelta
 from datetime import timezone
 from typing import Optional
@@ -101,6 +101,30 @@ class HeicMeta(AbstractMeta):
                 return dt
 
         return None
+
+
+class Mp4Meta(AbstractMeta):
+    def get_create_timestamp(self) -> Optional[datetime]:
+        atom_header_size = 8
+        epoch_adjuster = 2082844800  # difference between Unix epoch and QuickTime epoch, in seconds
+
+        # search for moov item
+        with open(self._filename, "rb") as f:
+            # found 'moov', look for 'mvhd' and timestamps
+            atom_header = f.read(atom_header_size)
+            if atom_header[4:8] == b'cmov':
+                raise RuntimeError('moov atom is compressed')
+            elif atom_header[4:8] != b'mvhd':
+                raise RuntimeError('expected to find "mvhd" header.')
+
+            f.seek(4, 1)
+
+            creation_time = struct.unpack('>I', f.read(4))[0] - epoch_adjuster
+            creation_time = datetime.fromtimestamp(creation_time)
+            if creation_time.year < 1990:  # invalid or censored data
+                creation_time = None
+
+        return creation_time
 
 
 class JpgMeta(AbstractMeta):
