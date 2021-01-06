@@ -9,7 +9,7 @@ not_dated = path + '/_NotDated'
 
 dir_obj = Directory(path)
 
-for file in dir_obj.fetch(['jpg', 'jpeg', 'mov', 'png']):
+for file in dir_obj.fetch(['jpg', 'jpeg', 'heic', 'mov', 'png']):
     print(f'Processing file {file.name}')
     try:
         file_meta = MetaFactory.factory(file)

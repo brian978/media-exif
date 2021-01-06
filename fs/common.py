@@ -31,5 +31,5 @@ class Directory:
 
     def fetch(self, file_extension: Optional[list] = None):
         for file in self.__do_fetch(self.__dir):
-            if file_extension is None or file.extension in file_extension:
+            if file_extension is None or file.extension.lower() in file_extension:
                 yield file
