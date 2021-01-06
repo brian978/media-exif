@@ -5,14 +5,15 @@ from model import File
 
 
 class Directory:
-    excluded = ['_NotDated']
+    EXCLUDED_DIR_NAME = '_NotDated'
 
     def __init__(self, directory: str):
         self.__dir = directory
+        self.__excluded = [Directory.EXCLUDED_DIR_NAME]
 
     def __do_fetch(self, directory: str):
         for file in sorted(os.listdir(directory)):
-            if file in Directory.excluded:
+            if file in self.__excluded:
                 continue
 
             file_path = os.path.join(directory, file)

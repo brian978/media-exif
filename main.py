@@ -5,12 +5,12 @@ from fs.common import Directory
 from media.metadata import MetaFactory
 
 path = input('Target path: ')
-not_dated = path + '/_NotDated'
 
 dir_obj = Directory(path)
 
 for file in dir_obj.fetch(['jpg', 'jpeg', 'heic', 'mov', 'png']):
     print(f'Processing file {file.name}')
+
     try:
         file_meta = MetaFactory.factory(file)
 
@@ -20,6 +20,9 @@ for file in dir_obj.fetch(['jpg', 'jpeg', 'heic', 'mov', 'png']):
             file.save()
         else:
             print(f'No date taken for file: {file.basename}')
+
+            file_dir = os.path.dirname(file.name)
+            not_dated = os.path.join(file_dir, Directory.EXCLUDED_DIR_NAME)
 
             if not os.path.isdir(not_dated):
                 os.mkdir(not_dated)
