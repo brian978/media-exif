@@ -2,20 +2,27 @@ import os
 import shutil
 
 from fs.common import Directory
+from fs.ftype import FileType
 from media.metadata import MetaFactory
 
 path = input('Target path: ')
+# path = os.path.abspath('./resources')
+
+print(f'Lookup directory: {path}')
 
 dir_obj = Directory(path)
 
-for file in dir_obj.fetch(['jpg', 'jpeg', 'heic', 'mov', 'png']):
-    print(f'Processing file {file.name}')
+for file in dir_obj.fetch(FileType.list()):
+    print(f'-------- Processing file {file.name}')
+    print(f'#')
 
     try:
         file_meta = MetaFactory.factory(file)
 
         date = file_meta.get_create_timestamp()
         if date is not None:
+            print(f'Tagging file {file.basename} with date {date}')
+
             file.create_timestamp = date
             file.save()
         else:
@@ -37,3 +44,7 @@ for file in dir_obj.fetch(['jpg', 'jpeg', 'heic', 'mov', 'png']):
     except ValueError as msg:
         print(f'{file.name}: {msg}')
         continue
+    finally:
+        print(f'#')
+        print(f'-------------- End processing for file {file.basename}----------------------')
+        print('')

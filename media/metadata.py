@@ -31,6 +31,10 @@ class MetaFactory:
             return PngMeta(file.name)
         elif file.type == FileType.TYPE_HEIC:
             return HeicMeta(file.name)
+        elif file.type == FileType.TYPE_CR3:
+            return Cr3Meta(file.name)
+        elif file.type == FileType.TYPE_DNG:
+            return DngMeta(file.name)
 
 
 class MovMeta(AbstractMeta):
@@ -169,5 +173,42 @@ class PngMeta(AbstractMeta):
                     break
                 elif chunk == b'':
                     break
+
+        return create_timestamp
+
+
+class Cr3Meta(AbstractMeta):
+    def get_create_timestamp(self) -> Optional[datetime]:
+        create_timestamp = None
+
+        with open(self._filename, 'rb') as fh:
+            # Seek to byte
+            fh.seek(524, 0)
+
+            try:
+                timestamp = fh.read(20).decode('utf8').replace('\x00', '')
+                create_timestamp = datetime.strptime(timestamp, "%Y:%m:%d %H:%M:%S")
+                # print(f'Found timestamp: {create_timestamp}')
+            except ValueError as e:
+                print(f'Invalid position for timestamp in file {self._filename}')
+                print(f'Error message: {str(e)}')
+
+        return create_timestamp
+
+
+class DngMeta(AbstractMeta):
+    def get_create_timestamp(self) -> Optional[datetime]:
+        create_timestamp = None
+
+        with open(self._filename, 'rb') as fh:
+            # Seek to byte
+            fh.seek(448, 0)
+
+            try:
+                timestamp = fh.read(20).decode('utf8').replace('\x00', '')
+                create_timestamp = datetime.strptime(timestamp, "%Y:%m:%d %H:%M:%S")
+            except ValueError as e:
+                print(f'Invalid position for timestamp in file {self._filename}')
+                print(f'Error message: {str(e)}')
 
         return create_timestamp
