@@ -7,6 +7,7 @@ from datetime import timezone
 from typing import Optional
 
 import exifread
+import xml.etree.ElementTree as ET
 
 from fs.ftype import FileType
 from model import File
@@ -173,6 +174,29 @@ class PngMeta(AbstractMeta):
                     break
                 elif chunk == b'':
                     break
+
+        if create_timestamp is None:
+            create_timestamp = self.get_create_timestamp_from_xml()
+
+        return create_timestamp
+
+    def get_create_timestamp_from_xml(self):
+        create_timestamp = None
+
+        with open(self._filename, 'rb') as fh:
+            data = fh.read()
+            is_xmp = data.find(b'com.adobe.xmp') != 0
+
+            if is_xmp:
+                start_tag_offset = data.find(b'<x:xmpmeta')
+                end_tag_offset = data.find(b'</x:xmpmeta>') + len(b'</x:xmpmeta>')
+                xml_string = data[start_tag_offset:end_tag_offset].decode('utf8')
+
+                root = ET.fromstring(xml_string)
+                created_date_tag = root.find('.//{http://ns.adobe.com/xap/1.0/}CreateDate')
+
+                if created_date_tag is not None:
+                    create_timestamp = datetime.strptime(created_date_tag.text, "%Y-%m-%dT%H:%M:%S")
 
         return create_timestamp
 
